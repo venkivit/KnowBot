@@ -3,7 +3,7 @@ from typing import List
 
 class LLMHandler:
     def __init__(self):
-        self.client = Groq()
+        self.client = Groq(api_key=os.getenv('GROQ_API_KEY'))
         self.model = "mixtral-8x7b-32768"  # Using Mixtral model
         
     def generate_response(self, 
