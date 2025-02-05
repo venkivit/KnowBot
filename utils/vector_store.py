@@ -1,25 +1,33 @@
 import chromadb
 import pandas as pd
-from chromadb.config import Settings
-from typing import List, Dict
+from typing import List, Dict, Optional
+import os
 
 class VectorStore:
     def __init__(self):
-        self.client = chromadb.Client(Settings(
-            chroma_db_impl="duckdb+parquet",
-            persist_directory="./data"
-        ))
-        self.collection = self.client.get_or_create_collection("knowledge_base")
+        # Create data directory if it doesn't exist
+        self.persist_dir = "./chroma_db"
+        os.makedirs(self.persist_dir, exist_ok=True)
 
-    def add_documents(self, documents: List[str], metadata: List[Dict] = None):
+        # Initialize ChromaDB client with new configuration
+        self.client = chromadb.PersistentClient(path=self.persist_dir)
+        self.collection = self.client.get_or_create_collection(
+            name="knowledge_base",
+            metadata={"hnsw:space": "cosine"}
+        )
+
+    def add_documents(self, documents: List[str], metadata: Optional[List[Dict]] = None) -> bool:
         """Add documents to the vector store"""
         try:
             if metadata is None:
                 metadata = [{"source": f"doc_{i}"} for i in range(len(documents))]
-            
+
+            # Generate IDs for documents
+            ids = [f"doc_{hash(doc)}" for doc in documents]
+
             self.collection.add(
                 documents=documents,
-                ids=[f"doc_{i}" for i in range(len(documents))],
+                ids=ids,
                 metadatas=metadata
             )
             return True
@@ -41,4 +49,8 @@ class VectorStore:
 
     def get_document_count(self) -> int:
         """Get the total number of documents in the store"""
-        return self.collection.count()
+        try:
+            return self.collection.count()
+        except Exception as e:
+            print(f"Error getting document count: {str(e)}")
+            return 0
