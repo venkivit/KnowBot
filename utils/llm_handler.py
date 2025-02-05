@@ -1,5 +1,6 @@
 from groq import Groq
 from typing import List
+import os
 
 class LLMHandler:
     def __init__(self):
