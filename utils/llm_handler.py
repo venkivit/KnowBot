@@ -4,8 +4,10 @@ import os
 
 class LLMHandler:
     def __init__(self):
+        os.environ["GROQ_API_KEY"] = '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'
+        #llm = ChatGroq(model="llama3-8b-8192")
         self.client = Groq(api_key=os.getenv('GROQ_API_KEY'))
-        self.model = "mixtral-8x7b-32768"  # Using Mixtral model
+        self.model = "llama3-8b-8192" 
         
     def generate_response(self, 
                          query: str, 
