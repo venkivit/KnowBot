@@ -20,7 +20,7 @@ class LLMHandler:
             formatted_history = "\n".join([
                 f"User: {msg['user']}\nAssistant: {msg['assistant']}" for msg
                 in chat_history[-5:]  # Keep last 5 messages for context
-            ])
+                ])
 
             # Construct prompt
             prompt = f"""Based on the following context and chat history, 
@@ -49,8 +49,11 @@ class LLMHandler:
                 stream=True  # Enable streaming
             )
 
+            #print(stream.choices[0].delta.content)
+
             for chunk in stream:
                 if chunk.choices[0].delta.content is not None:
+                    #print(chunk)
                     yield chunk.choices[0].delta.content
 
         except Exception as e:
@@ -91,6 +94,7 @@ class LLMHandler:
                                                            temperature=0.7,
                                                            max_tokens=1024)
 
+            print(response)
             return response.choices[0].message.content.strip()
 
         except Exception as e:

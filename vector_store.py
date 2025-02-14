@@ -17,10 +17,17 @@ class VectorStore:
     def add_documents(self, documents: List[str], metadata: Optional[List[Dict]] = None) -> bool:
         """Add documents to the vector store"""
         try:
+            print(metadata)
             if metadata is None:
-                metadata = [{"source": f"doc_{i}", "timestamp": pd.Timestamp.now().isoformat()} 
+                #metadata = [{"source": f"doc_{i}", "timestamp": pd.Timestamp.now().isoformat()} 
+                #          for i in range(len(documents))]
+                metadata = [{"source": f"doc_{i}", "timestamp": pd.Timestamp.now().isoformat(),"filename": metadata["file_name"]} 
                           for i in range(len(documents))]
-
+            if metadata:
+                metadata = [{"source": f"doc_{i}", "timestamp": pd.Timestamp.now().isoformat(),"filename": metadata["file_name"]} 
+                          for i in range(len(documents))]
+            
+            print(metadata)
             ids = [f"doc_{hash(doc)}" for doc in documents]
 
             self.collection.add(
@@ -74,6 +81,10 @@ class VectorStore:
                 query_texts=[query],
                 n_results=n_results
             )
+            print("results :: ")
+            print(results['metadatas'][0]['filename']
+                  )
+            #print(results)
             return results['documents'][0]
         except Exception as e:
             print(f"Error querying documents: {str(e)}")

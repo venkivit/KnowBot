@@ -240,15 +240,17 @@ with st.sidebar:
     if uploaded_file:
         try:
             # Get file content and type
+            print(uploaded_file.name)
             content = uploaded_file.getvalue()
             file_type = uploaded_file.type.split('/')[
                 -1]  # Get file extension from MIME type
 
             # Process the file using DocumentProcessor
             documents = DocumentProcessor.process_file(content, file_type)
-
+            file_metadata = {}
+            file_metadata['file_name'] = uploaded_file.name
             if documents:
-                if st.session_state.vector_store.add_documents(documents):
+                if st.session_state.vector_store.add_documents(documents,file_metadata):
                     st.success(
                         f"✅ Successfully added {len(documents)} documents from {uploaded_file.name}!"
                     )
@@ -270,7 +272,7 @@ with st.sidebar:
 
     # Display documents
     for doc, meta in zip(docs, metadata):
-        with st.expander(f"Document {meta.get('source', 'Untitled')}"):
+        with st.expander(f"Document {meta.get('source', 'Untitled')} {meta.get('filename', 'File Name')}"):
             # Handle timestamp formatting with proper error checking
             timestamp = meta.get('timestamp', '')
             try:
